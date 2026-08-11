@@ -13,11 +13,11 @@
 #
 # qwen_profile_results/figures/
 #
-# ├── fig1_ttft.png / pdf
-# ├── fig2_tpot.png / pdf
-# ├── fig3_throughput.png / pdf
-# ├── fig4_total_latency.png / pdf
-# └── fig5_peak_vram.png / pdf
+# ├── fig1_ttft.png
+# ├── fig2_tpot.png
+# ├── fig3_throughput.png
+# ├── fig4_total_latency.png
+# └── fig5_peak_vram.png
 #
 #
 # 실행:
@@ -104,7 +104,7 @@ print(summary)
 # - font size 일정
 # - grid 사용
 # - 300 DPI PNG
-# - PDF vector figure 동시 저장
+# - PDF 생성은 비활성화하고 PNG만 저장
 #
 # ============================================================
 
@@ -154,31 +154,32 @@ def save_figure(
 
 
     # --------------------------------------------------------
-    # PDF
-    #
-    # 논문 작성 시 vector 형식으로 사용 가능
+    # PDF 생성 비활성화
     # --------------------------------------------------------
-
-    pdf_path = (
-        FIGURE_DIR
-        / f"{filename}.pdf"
-    )
-
-    figure.savefig(
-
-        pdf_path,
-
-        bbox_inches="tight",
-    )
+    # PDF 파일이 생성되지 않도록 아래 저장 코드를 주석 처리함.
+    # 필요한 경우 아래 코드의 주석을 해제하면 PDF 저장을 다시 활성화할 수 있음.
+    #
+    # pdf_path = (
+    #     FIGURE_DIR
+    #     / f"{filename}.pdf"
+    # )
+    #
+    # figure.savefig(
+    #
+    #     pdf_path,
+    #
+    #     bbox_inches="tight",
+    # )
 
 
     print(
         f"Saved: {png_path}"
     )
 
-    print(
-        f"Saved: {pdf_path}"
-    )
+    # PDF를 저장하지 않으므로 PDF 저장 완료 출력도 주석 처리함.
+    # print(
+    #     f"Saved: {pdf_path}"
+    # )
 
 
 # ============================================================
