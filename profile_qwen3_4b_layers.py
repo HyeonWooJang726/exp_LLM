@@ -2,17 +2,10 @@
 
 from pathlib import Path
 
-from qwen_profile.config import DEFAULT_CONFIG
-from qwen_profile.layer_benchmark import run_layer_benchmarks
-from qwen_profile.layer_results import print_layer_report, save_layer_results
-from qwen_profile.model_runtime import (
-    build_token_pool,
-    inspect_environment,
-    load_model_artifacts,
-    run_smoke_test,
-    warm_up_gpu,
+from gpu_preflight import (
+    measure_initial_system_gpu_status,
+    print_initial_system_gpu_status,
 )
-from qwen_profile.utils import clear_gpu_memory, print_section
 
 LAYER_PROFILE_REPEATS = 10
 LAYER_RESULT_DIR = Path("qwen_layer_profile_results")
@@ -20,6 +13,27 @@ LAYER_RESULT_DIR = Path("qwen_layer_profile_results")
 
 def main() -> None:
     """Model 준비 후 layer-wise prefill/decode profiling을 실행한다."""
+
+    # ============================================================
+    # PyTorch / Transformers import 전 system-wide GPU baseline
+    # ============================================================
+    initial_gpu_status = measure_initial_system_gpu_status()
+    print_initial_system_gpu_status(initial_gpu_status)
+
+    # ============================================================
+    # Baseline 측정이 끝난 후 profiling 모듈 import 및 실행
+    # ============================================================
+    from qwen_profile.config import DEFAULT_CONFIG
+    from qwen_profile.layer_benchmark import run_layer_benchmarks
+    from qwen_profile.layer_results import print_layer_report, save_layer_results
+    from qwen_profile.model_runtime import (
+        build_token_pool,
+        inspect_environment,
+        load_model_artifacts,
+        run_smoke_test,
+        warm_up_gpu,
+    )
+    from qwen_profile.utils import clear_gpu_memory, print_section
 
     runtime = inspect_environment()
     clear_gpu_memory(reset_peak_stats=True)
@@ -37,6 +51,7 @@ def main() -> None:
         DEFAULT_CONFIG,
         repeats=LAYER_PROFILE_REPEATS,
         decode_steps=decode_steps,
+        device_label=runtime.gpu_name,
     )
     summary, paths = save_layer_results(
         rows,
@@ -46,6 +61,7 @@ def main() -> None:
         output_dir=LAYER_RESULT_DIR,
         decode_steps=decode_steps,
         layer_profile_repeats=LAYER_PROFILE_REPEATS,
+        initial_system_gpu_status=initial_gpu_status,
     )
     print_layer_report(summary, paths)
 

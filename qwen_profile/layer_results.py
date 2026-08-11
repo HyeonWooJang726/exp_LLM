@@ -6,6 +6,7 @@ import json
 import math
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pandas as pd
 
@@ -13,6 +14,9 @@ from .config import ProfileConfig
 from .layer_benchmark import LayerProfileRow
 from .model_runtime import ModelArtifacts, RuntimeInfo
 from .utils import print_section
+
+if TYPE_CHECKING:
+    from gpu_preflight import SystemGpuStatus
 
 RAW_COLUMNS = [
     "device",
@@ -179,6 +183,7 @@ def save_layer_results(
     output_dir: Path,
     decode_steps: int,
     layer_profile_repeats: int,
+    initial_system_gpu_status: SystemGpuStatus | None = None,
 ) -> tuple[pd.DataFrame, LayerResultPaths]:
     """Layer raw/summary CSV와 실행 환경 JSON을 별도 directory에 저장한다."""
 
@@ -198,9 +203,32 @@ def save_layer_results(
     raw_results.to_csv(paths.raw_csv, index=False)
     summary.to_csv(paths.summary_csv, index=False)
 
+    # nvidia-smi baseline은 Windows/GUI/다른 프로세스를 포함한 system-wide 값이다.
+    baseline = initial_system_gpu_status
     environment = {
         "model": config.model_name,
         "gpu": runtime.gpu_name,
+        "system_gpu_memory_used_mib_before_model_load": (
+            baseline.memory_used_mib if baseline is not None else None
+        ),
+        "system_gpu_memory_total_mib": (
+            baseline.memory_total_mib if baseline is not None else None
+        ),
+        "system_gpu_utilization_percent_before_model_load": (
+            baseline.utilization_gpu_percent if baseline is not None else None
+        ),
+        "system_gpu_temperature_c_before_model_load": (
+            baseline.temperature_gpu_c if baseline is not None else None
+        ),
+        "system_gpu_power_draw_w_before_model_load": (
+            baseline.power_draw_w if baseline is not None else None
+        ),
+        "system_gpu_pstate_before_model_load": (
+            baseline.pstate if baseline is not None else None
+        ),
+        "system_gpu_baseline_timestamp": (
+            baseline.timestamp if baseline is not None else None
+        ),
         "precision": config.precision_label,
         "batch_size": 1,
         "num_layers": num_layers,

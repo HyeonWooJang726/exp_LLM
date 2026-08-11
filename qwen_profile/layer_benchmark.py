@@ -205,6 +205,7 @@ def run_layer_benchmarks(
     *,
     repeats: int,
     decode_steps: int,
+    device_label: str,
 ) -> list[LayerProfileRow]:
     """Prompt별 prefill과 autoregressive decode의 layer-wise cost를 측정한다."""
 
@@ -250,7 +251,7 @@ def run_layer_benchmarks(
             kv_cache_sizes = _kv_cache_sizes(past_key_values, num_layers)
             _append_layer_rows(
                 rows,
-                device=config.device,
+                device=device_label,
                 phase="prefill",
                 prompt_tokens=prompt_tokens,
                 decode_step=None,
@@ -288,7 +289,7 @@ def run_layer_benchmarks(
                 kv_cache_sizes = _kv_cache_sizes(past_key_values, num_layers)
                 _append_layer_rows(
                     rows,
-                    device=config.device,
+                    device=device_label,
                     phase="decode",
                     prompt_tokens=prompt_tokens,
                     decode_step=decode_step,
