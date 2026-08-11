@@ -60,13 +60,24 @@ FIGURE_DIR = (
 
 
 # ============================================================
-# 3. Figure 저장 폴더 생성
+# 3. Figure 저장 폴더 생성 및 기존 그림 정리
 # ============================================================
 
 FIGURE_DIR.mkdir(
     parents=True,
     exist_ok=True,
 )
+
+# 실행할 때마다 이전에 생성된 그림이 남지 않도록 먼저 삭제함.
+# 현재 생성하는 PNG와 과거에 생성됐을 수 있는 PDF만 정리함.
+for figure_pattern in (
+    "*.png",
+    "*.pdf",
+):
+    for existing_figure in FIGURE_DIR.glob(
+        figure_pattern
+    ):
+        existing_figure.unlink()
 
 
 # ============================================================
@@ -531,7 +542,7 @@ ax.set_ylabel(
 )
 
 ax.set_title(
-    "End-to-End Inference Latency"
+    "Total Model Inference Latency"
 )
 
 ax.set_xticks(
@@ -624,7 +635,7 @@ ax.set_ylabel(
 )
 
 ax.set_title(
-    "Peak GPU Memory vs. Prompt Length"
+    "Peak PyTorch GPU Memory by Prompt Length"
 )
 
 ax.set_xticks(
