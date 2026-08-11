@@ -101,6 +101,9 @@ def load_model_artifacts(config: ProfileConfig) -> ModelArtifacts:
     model.eval()
     cuda_sync()
     model_load_time_sec = time.perf_counter() - load_start
+
+    # 현재 PyTorch 프로세스가 모델 로드 후 할당한 VRAM이다.
+    # nvidia-smi로 측정한 system-wide GPU baseline과는 다른 값이다.
     model_vram_bytes = torch.cuda.memory_allocated()
 
     parameter_count = sum(parameter.numel() for parameter in model.parameters())

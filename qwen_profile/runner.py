@@ -1,5 +1,9 @@
 """전체 프로파일링 단계를 순서대로 조율하는 실행 모듈."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from .benchmark import run_benchmarks
 from .config import DEFAULT_CONFIG, ProfileConfig
 from .model_runtime import (
@@ -13,8 +17,15 @@ from .model_runtime import (
 from .results import print_final_report, save_results
 from .utils import clear_gpu_memory, print_section
 
+if TYPE_CHECKING:
+    from gpu_preflight import SystemGpuStatus
 
-def run(config: ProfileConfig = DEFAULT_CONFIG) -> None:
+
+def run(
+    config: ProfileConfig = DEFAULT_CONFIG,
+    *,
+    initial_system_gpu_status: SystemGpuStatus | None = None,
+) -> None:
     """환경 확인부터 결과 저장까지 전체 프로파일링을 실행한다."""
 
     config.output_dir.mkdir(parents=True, exist_ok=True)
@@ -34,5 +45,11 @@ def run(config: ProfileConfig = DEFAULT_CONFIG) -> None:
         config,
         artifacts.model_vram_bytes,
     )
-    summary, paths = save_results(raw_results, config, runtime, artifacts)
+    summary, paths = save_results(
+        raw_results,
+        config,
+        runtime,
+        artifacts,
+        initial_system_gpu_status=initial_system_gpu_status,
+    )
     print_final_report(summary, paths)

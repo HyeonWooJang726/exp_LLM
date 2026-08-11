@@ -74,6 +74,9 @@ def profile_once(
         tokens_per_second = 0.0
 
     total_latency_sec = ttft_sec + decode_total_sec
+
+    # 현재 PyTorch profiling 프로세스 allocator의 peak 값이다.
+    # Windows 및 다른 프로세스까지 포함하는 nvidia-smi baseline과는 다르다.
     peak_vram_bytes = torch.cuda.max_memory_allocated()
     prefill_memory_delta = memory_after_prefill - memory_before_prefill
 

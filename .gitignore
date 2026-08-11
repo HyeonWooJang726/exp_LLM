@@ -1,3 +1,35 @@
+# Python virtual environments
+/venv1/
+venv/
+.venv/
+env/
+
+# Python cache
 __pycache__/
 *.py[cod]
-/venv1/
+
+# IDE
+.vscode/
+.idea/
+
+# Hugging Face / model cache
+.cache/
+.huggingface/
+hf_cache/
+huggingface_cache/
+models/
+model/
+
+# LLM / ML model weights
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.gguf
+*.engine
+
+# Temporary files
+*.tmp
+*.log

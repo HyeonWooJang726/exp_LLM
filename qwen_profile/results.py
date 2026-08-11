@@ -13,6 +13,8 @@ from .config import ProfileConfig
 from .utils import bytes_to_gib, print_section
 
 if TYPE_CHECKING:
+    from gpu_preflight import SystemGpuStatus
+
     from .benchmark import ProfileResult
     from .model_runtime import ModelArtifacts, RuntimeInfo
 
@@ -52,6 +54,8 @@ def save_results(
     config: ProfileConfig,
     runtime: RuntimeInfo,
     artifacts: ModelArtifacts,
+    *,
+    initial_system_gpu_status: SystemGpuStatus | None = None,
 ) -> tuple[pd.DataFrame, SavedResultPaths]:
     """raw/summary CSV와 실행 환경 JSON을 저장한다."""
 
@@ -69,6 +73,8 @@ def save_results(
     raw_results.to_csv(paths.raw_csv, index=False)
     summary.to_csv(paths.summary_csv, index=False)
 
+    # nvidia-smi baseline은 Windows/GUI/다른 프로세스를 포함한 system-wide 값이다.
+    baseline = initial_system_gpu_status
     environment = {
         "model": config.model_name,
         "precision": config.precision_label,
@@ -77,12 +83,34 @@ def save_results(
         "decoding": "greedy",
         "gpu": runtime.gpu_name,
         "gpu_vram_gib": runtime.total_vram_gib,
+        "system_gpu_memory_used_mib_before_model_load": (
+            baseline.memory_used_mib if baseline is not None else None
+        ),
+        "system_gpu_memory_total_mib": (
+            baseline.memory_total_mib if baseline is not None else None
+        ),
+        "system_gpu_utilization_percent_before_model_load": (
+            baseline.utilization_gpu_percent if baseline is not None else None
+        ),
+        "system_gpu_temperature_c_before_model_load": (
+            baseline.temperature_gpu_c if baseline is not None else None
+        ),
+        "system_gpu_power_draw_w_before_model_load": (
+            baseline.power_draw_w if baseline is not None else None
+        ),
+        "system_gpu_pstate_before_model_load": (
+            baseline.pstate if baseline is not None else None
+        ),
+        "system_gpu_baseline_timestamp": (
+            baseline.timestamp if baseline is not None else None
+        ),
         "python": runtime.python_version,
         "pytorch": runtime.pytorch_version,
         "cuda": runtime.cuda_version,
         "transformers": runtime.transformers_version,
         "model_parameters": artifacts.parameter_count,
         "model_parameter_memory_gib": bytes_to_gib(artifacts.parameter_bytes),
+        # 아래 값은 system-wide baseline이 아닌 현재 PyTorch 프로세스의 할당량이다.
         "model_loaded_vram_gib": bytes_to_gib(artifacts.model_vram_bytes),
         "tokenizer_load_time_sec": artifacts.tokenizer_load_time_sec,
         "model_load_time_sec": artifacts.model_load_time_sec,
