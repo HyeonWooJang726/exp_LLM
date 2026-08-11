@@ -194,7 +194,11 @@ def run_smoke_test(model: Any, token_pool: torch.Tensor, config: ProfileConfig) 
         config.device,
     )
     with torch.inference_mode():
-        smoke_output = model(input_ids=smoke_input, use_cache=True)
+        smoke_output = model(
+            input_ids=smoke_input,
+            use_cache=True,
+            logits_to_keep=config.logits_to_keep,
+        )
     cuda_sync()
     print("Forward pass 성공.")
     print("Logits shape:", tuple(smoke_output.logits.shape))
@@ -210,7 +214,11 @@ def warm_up_gpu(model: Any, token_pool: torch.Tensor, config: ProfileConfig) -> 
     for warmup_index in range(config.warmup_runs):
         warm_input = make_input(token_pool, config.warmup_prompt_length, config.device)
         with torch.inference_mode():
-            warm_output = model(input_ids=warm_input, use_cache=True)
+            warm_output = model(
+                input_ids=warm_input,
+                use_cache=True,
+                logits_to_keep=config.logits_to_keep,
+            )
         cuda_sync()
         print(f"Warm-up {warmup_index + 1}/{config.warmup_runs}")
 

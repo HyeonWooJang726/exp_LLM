@@ -23,6 +23,7 @@ def profile_once(
     repeat: int,
     model_vram_bytes: int,
     device: str,
+    logits_to_keep: int,
 ) -> ProfileResult:
     """하나의 prompt/output 조합을 한 번 측정한다."""
 
@@ -33,7 +34,11 @@ def profile_once(
     cuda_sync()
     prefill_start = time.perf_counter()
     with torch.inference_mode():
-        outputs = model(input_ids=input_ids, use_cache=True)
+        outputs = model(
+            input_ids=input_ids,
+            use_cache=True,
+            logits_to_keep=logits_to_keep,
+        )
         first_token = torch.argmax(
             outputs.logits[:, -1, :],
             dim=-1,
@@ -55,6 +60,7 @@ def profile_once(
                 input_ids=next_token,
                 past_key_values=past_key_values,
                 use_cache=True,
+                logits_to_keep=logits_to_keep,
             )
             next_token = torch.argmax(
                 outputs.logits[:, -1, :],
@@ -140,6 +146,7 @@ def run_benchmarks(
                         repeat=repeat,
                         model_vram_bytes=model_vram_bytes,
                         device=config.device,
+                        logits_to_keep=config.logits_to_keep,
                     )
                 )
     return results

@@ -22,6 +22,11 @@ class ProfileConfig:
     dtype: torch.dtype = torch.bfloat16
     precision_label: str = "BF16"
     device: str = "cuda"
+    # logits_to_keep=1은 Transformer prefill이나 KV cache를 줄이는 옵션이 아니다.
+    # Prompt 전체의 Transformer 계산과 KV cache 생성은 그대로 수행한다.
+    # 마지막 hidden state에만 LM Head를 적용해 next-token logits를 생성하며,
+    # full-sequence logits 생성을 제거하기 위한 설정이다.
+    logits_to_keep: int = 1
     smoke_test_prompt_length: int = 32
     warmup_prompt_length: int = 128
 

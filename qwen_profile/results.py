@@ -80,6 +80,7 @@ def save_results(
         "precision": config.precision_label,
         "batch_size": 1,
         "kv_cache": True,
+        "logits_to_keep": config.logits_to_keep,
         "decoding": "greedy",
         "gpu": runtime.gpu_name,
         "gpu_vram_gib": runtime.total_vram_gib,
