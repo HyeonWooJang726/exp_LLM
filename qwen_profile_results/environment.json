@@ -1,0 +1,30 @@
+{
+    "model": "Qwen/Qwen3-4B-Instruct-2507",
+    "precision": "BF16",
+    "batch_size": 1,
+    "kv_cache": true,
+    "decoding": "greedy",
+    "gpu": "NVIDIA GeForce RTX 5070 Ti",
+    "gpu_vram_gib": 15.92047119140625,
+    "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+    "pytorch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "transformers": "5.15.0",
+    "model_parameters": 4022468096,
+    "model_parameter_memory_gib": 7.492430686950684,
+    "model_loaded_vram_gib": 7.545305252075195,
+    "tokenizer_load_time_sec": 6.183282300000428,
+    "model_load_time_sec": 638.0422383000005,
+    "prompt_lengths": [
+        128,
+        512,
+        1024,
+        2048
+    ],
+    "output_lengths": [
+        32,
+        128
+    ],
+    "warmup_runs": 2,
+    "repeats": 3
+}
