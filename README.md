@@ -30,3 +30,17 @@ python profile_qwen3_4b.py
 - `qwen_profile_results`의 CSV와 JSON은 연구 결과이므로 Git에 저장할 수 있습니다.
 
 VRAM 값은 측정 범위가 서로 다릅니다. `system_gpu_memory_used_mib_before_model_load`는 Windows와 다른 프로그램을 포함한 `nvidia-smi` system-wide 사용량이고, `model_loaded_vram_gib`와 `peak_vram_gib`는 현재 PyTorch 프로세스의 allocator 기준입니다.
+
+## Layer profiling
+
+```powershell
+python profile_qwen3_4b_layers.py
+```
+
+Plot:
+
+```powershell
+python plot_qwen3_4b_layers.py
+```
+
+결과는 `qwen_layer_profile_results/`에 저장됩니다. 각 Transformer layer의 prefill latency, decode latency, parameter memory, boundary activation size, KV-cache size를 측정합니다.
